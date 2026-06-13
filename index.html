@@ -1446,7 +1446,7 @@
 
       <details class="skill-tree-area accordion-area" open>
         <summary class="accordion-summary">
-          <div class="skill-title">スキルツリー</div>
+          <div class="skill-title">スキル</div>
           <div id="skillInfo" class="skill-info"></div>
         </summary>
 
@@ -1469,8 +1469,8 @@
         <div class="love-detail">
           一定量のふぁぼ度を捧げると、愛情ポイントが1増えます。<br />
           愛情ポイントはショップ・タップ・自動増加には影響しません。<br />
+          あなたのたゆまぬ愛情を視覚化できます。<br />
           愛情ポイントが増えるたび、強化素材「愛の結晶」も1個増えます。<br />
-          あなたのたゆまぬ愛情を視覚化するものです。<br />
           次に必要なふぁぼ度：<span id="loveCost" class="love-cost">1無量大数</span>
         </div>
 
@@ -2032,29 +2032,29 @@
       const BASE_SKILLS = [
         {
           id: "autoMultiplier",
-          name: "自動ふぁぼ研究",
+          name: "持続可能な推し活の研究",
           maxLevel: BASE_SKILL_MAX_LEVEL,
           baseCost: 1,
           costStep: 1,
           costCurve: 0.012,
           type: "autoMultiplier",
           target: "自動増加",
-          effectText: "自動増加にレベルごとに+10%の倍率がかかります。",
+          effectText: "自動増加に、スキルレベルごとに+10%の倍率がかかります。",
         },
         {
           id: "tapMultiplier",
-          name: "なで力研究",
+          name: "より良い撫で方の研究",
           maxLevel: BASE_SKILL_MAX_LEVEL,
           baseCost: 1,
           costStep: 1,
           costCurve: 0.012,
           type: "tapMultiplier",
           target: "タップ増加",
-          effectText: "タップ増加にレベルごとに+10%の倍率がかかります。",
+          effectText: "タップ増加に、スキルレベルごとに+10%の倍率がかかります。",
         },
         {
           id: "savingTapBoost",
-          name: "想いの貯蓄",
+          name: "愛の貯蓄",
           maxLevel: BASE_SKILL_MAX_LEVEL,
           baseCost: 2,
           costStep: 1,
@@ -2065,7 +2065,7 @@
         },
         {
           id: "autoCollectionBoost",
-          name: "自動コレクション",
+          name: "積み重ねた推し活の経験",
           maxLevel: BASE_SKILL_MAX_LEVEL,
           baseCost: 2,
           costStep: 2,
@@ -2076,7 +2076,7 @@
         },
         {
           id: "tapCollectionBoost",
-          name: "タップコレクション",
+          name: "積み重ねた撫で方の経験",
           maxLevel: BASE_SKILL_MAX_LEVEL,
           baseCost: 2,
           costStep: 2,
@@ -2090,7 +2090,7 @@
 
       const INFINITE_AUTO_SKILL = {
         id: "infiniteAutoBoost",
-        name: "永劫のふぁぼ循環",
+        name: "未来永劫フェイバリット",
         maxLevel: null,
         baseCost: 50,
         costStep: 5,
