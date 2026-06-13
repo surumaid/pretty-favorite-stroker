@@ -10,10 +10,10 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
 
-    <title>好感度クリッカー</title>
+    <title>ふぁぼクリッカー</title>
 
     <meta name="theme-color" content="#f4efe8" />
-    <meta name="apple-mobile-web-app-title" content="好感度クリッカー" />
+    <meta name="apple-mobile-web-app-title" content="ふぁぼクリッカー" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -81,8 +81,106 @@
         -webkit-touch-callout: default;
       }
 
+      .background-decoration {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+        color: var(--accent);
+      }
+
+      .background-decoration::before,
+      .background-decoration::after {
+        content: "";
+        position: absolute;
+        width: 46vmin;
+        height: 46vmin;
+        border-radius: 999px;
+        background: var(--accent);
+        opacity: 0.06;
+        filter: blur(10px);
+        animation: decorOrbFloat 18s ease-in-out infinite alternate;
+      }
+
+      .background-decoration::before {
+        left: -16vmin;
+        top: 8vmin;
+      }
+
+      .background-decoration::after {
+        right: -18vmin;
+        bottom: 12vmin;
+        animation-duration: 22s;
+        animation-delay: -7s;
+      }
+
+      .decor-stream {
+        position: absolute;
+        left: 0;
+        width: 2400px;
+        max-width: none;
+        height: 240px;
+        opacity: 0.34;
+        will-change: transform;
+      }
+
+      .decor-stream svg {
+        display: block;
+        width: 2400px;
+        height: 240px;
+      }
+
+      .decor-stream-a {
+        top: 8%;
+        animation: decorMoveLeft 44s linear infinite;
+      }
+
+      .decor-stream-b {
+        top: 42%;
+        opacity: 0.24;
+        animation: decorMoveRight 58s linear infinite;
+      }
+
+      .decor-stream-c {
+        bottom: 6%;
+        opacity: 0.28;
+        animation: decorMoveLeft 68s linear infinite;
+      }
+
+      .decor-line {
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0.34;
+      }
+
+      .decor-line-thin {
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0.28;
+      }
+
+      .decor-fill {
+        fill: var(--accent);
+        opacity: 0.16;
+      }
+
+      .decor-stroke {
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 4;
+        opacity: 0.22;
+      }
+
       .app {
         position: relative;
+        z-index: 1;
         width: 100%;
         max-width: 480px;
         min-height: 100vh;
@@ -644,6 +742,36 @@
         color: var(--muted);
       }
 
+      @keyframes decorMoveLeft {
+        0% {
+          transform: translate3d(0, 0, 0);
+        }
+
+        100% {
+          transform: translate3d(-1200px, 0, 0);
+        }
+      }
+
+      @keyframes decorMoveRight {
+        0% {
+          transform: translate3d(-1200px, 0, 0);
+        }
+
+        100% {
+          transform: translate3d(0, 0, 0);
+        }
+      }
+
+      @keyframes decorOrbFloat {
+        0% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+
+        100% {
+          transform: translate3d(8vmin, 5vmin, 0) scale(1.08);
+        }
+      }
+
       @keyframes characterIdleScale {
         0% {
           transform: scaleY(1) scaleX(1);
@@ -679,10 +807,166 @@
           transform: scaleY(1) scaleX(1);
         }
       }
+
+      @media (prefers-reduced-motion: reduce) {
+        .decor-stream,
+        .background-decoration::before,
+        .background-decoration::after,
+        .character-visual,
+        .character-bounce.is-bouncing {
+          animation: none;
+        }
+      }
     </style>
   </head>
 
   <body>
+    <div class="background-decoration" aria-hidden="true">
+      <div class="decor-stream decor-stream-a">
+        <svg viewBox="0 0 2400 240" preserveAspectRatio="none">
+          <g>
+            <path
+              class="decor-line"
+              d="M20 150 C140 60 220 220 340 130 S560 50 680 130 S900 220 1020 120 S1160 70 1200 105"
+            />
+            <path
+              class="decor-line-thin"
+              d="M0 62 C180 10 240 116 390 74 S640 26 780 86 S980 142 1200 42"
+            />
+            <circle class="decor-fill" cx="160" cy="70" r="18" />
+            <circle class="decor-stroke" cx="470" cy="164" r="28" />
+            <rect
+              class="decor-fill"
+              x="740"
+              y="44"
+              width="42"
+              height="42"
+              rx="14"
+              transform="rotate(16 761 65)"
+            />
+            <path class="decor-stroke" d="M1010 162 l24 -24 l24 24 l-24 24 z" />
+
+            <path
+              class="decor-line"
+              d="M1220 150 C1340 60 1420 220 1540 130 S1760 50 1880 130 S2100 220 2220 120 S2360 70 2400 105"
+            />
+            <path
+              class="decor-line-thin"
+              d="M1200 62 C1380 10 1440 116 1590 74 S1840 26 1980 86 S2180 142 2400 42"
+            />
+            <circle class="decor-fill" cx="1360" cy="70" r="18" />
+            <circle class="decor-stroke" cx="1670" cy="164" r="28" />
+            <rect
+              class="decor-fill"
+              x="1940"
+              y="44"
+              width="42"
+              height="42"
+              rx="14"
+              transform="rotate(16 1961 65)"
+            />
+            <path class="decor-stroke" d="M2210 162 l24 -24 l24 24 l-24 24 z" />
+          </g>
+        </svg>
+      </div>
+
+      <div class="decor-stream decor-stream-b">
+        <svg viewBox="0 0 2400 240" preserveAspectRatio="none">
+          <g>
+            <path
+              class="decor-line"
+              d="M10 108 C130 188 250 38 390 116 S660 206 810 98 S1060 44 1200 132"
+            />
+            <path
+              class="decor-line-thin"
+              d="M40 190 C220 128 330 214 520 162 S800 82 950 144 S1100 198 1200 170"
+            />
+            <circle class="decor-stroke" cx="210" cy="132" r="22" />
+            <rect
+              class="decor-fill"
+              x="530"
+              y="58"
+              width="34"
+              height="34"
+              rx="11"
+              transform="rotate(-22 547 75)"
+            />
+            <circle class="decor-fill" cx="910" cy="178" r="16" />
+            <path class="decor-stroke" d="M1080 58 C1110 30 1150 30 1180 58" />
+
+            <path
+              class="decor-line"
+              d="M1210 108 C1330 188 1450 38 1590 116 S1860 206 2010 98 S2260 44 2400 132"
+            />
+            <path
+              class="decor-line-thin"
+              d="M1240 190 C1420 128 1530 214 1720 162 S2000 82 2150 144 S2300 198 2400 170"
+            />
+            <circle class="decor-stroke" cx="1410" cy="132" r="22" />
+            <rect
+              class="decor-fill"
+              x="1730"
+              y="58"
+              width="34"
+              height="34"
+              rx="11"
+              transform="rotate(-22 1747 75)"
+            />
+            <circle class="decor-fill" cx="2110" cy="178" r="16" />
+            <path class="decor-stroke" d="M2280 58 C2310 30 2350 30 2380 58" />
+          </g>
+        </svg>
+      </div>
+
+      <div class="decor-stream decor-stream-c">
+        <svg viewBox="0 0 2400 240" preserveAspectRatio="none">
+          <g>
+            <path
+              class="decor-line"
+              d="M0 140 C130 98 210 170 330 128 S520 46 650 92 S860 188 1010 126 S1140 88 1200 112"
+            />
+            <path
+              class="decor-line-thin"
+              d="M80 58 C210 18 310 98 450 62 S660 38 760 102 S980 196 1200 150"
+            />
+            <circle class="decor-fill" cx="115" cy="158" r="20" />
+            <circle class="decor-stroke" cx="390" cy="72" r="24" />
+            <rect
+              class="decor-fill"
+              x="690"
+              y="156"
+              width="46"
+              height="46"
+              rx="16"
+              transform="rotate(30 713 179)"
+            />
+            <path class="decor-stroke" d="M980 70 l18 -30 l18 30 l-18 30 z" />
+
+            <path
+              class="decor-line"
+              d="M1200 140 C1330 98 1410 170 1530 128 S1720 46 1850 92 S2060 188 2210 126 S2340 88 2400 112"
+            />
+            <path
+              class="decor-line-thin"
+              d="M1280 58 C1410 18 1510 98 1650 62 S1860 38 1960 102 S2180 196 2400 150"
+            />
+            <circle class="decor-fill" cx="1315" cy="158" r="20" />
+            <circle class="decor-stroke" cx="1590" cy="72" r="24" />
+            <rect
+              class="decor-fill"
+              x="1890"
+              y="156"
+              width="46"
+              height="46"
+              rx="16"
+              transform="rotate(30 1913 179)"
+            />
+            <path class="decor-stroke" d="M2180 70 l18 -30 l18 30 l-18 30 z" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
     <main class="app">
       <button
         id="reloadButton"
@@ -696,7 +980,7 @@
       <section class="touch-area">
         <div class="status">
           <div class="status-card">
-            <div class="status-label">所持好感度</div>
+            <div class="status-label">所持ふぁぼ度</div>
             <div id="affection" class="status-value">0</div>
           </div>
           <div class="status-card">
@@ -781,14 +1065,14 @@
         </div>
 
         <div class="love-detail">
-          一定量の好感度を捧げると、愛情ポイントが1増えます。<br />
+          一定量のふぁぼ度を捧げると、愛情ポイントが1増えます。<br />
           愛情ポイントはショップ・タップ・自動増加には影響しません。<br />
           あなたのたゆまぬ愛情を視覚化するものです。<br />
-          次に必要な好感度：<span id="loveCost" class="love-cost">1無量大数</span>
+          次に必要なふぁぼ度：<span id="loveCost" class="love-cost">1無量大数</span>
         </div>
 
         <button id="loveOfferButton" class="love-button" type="button">
-          好感度を捧げる
+          ふぁぼ度を捧げる
         </button>
       </section>
 
@@ -802,7 +1086,7 @@
           </div>
 
           <div class="achievement-card">
-            <div class="achievement-label">今までの最大好感度所持数</div>
+            <div class="achievement-label">今までの最大ふぁぼ度所持数</div>
             <div id="maxAffectionRecord" class="achievement-value">0</div>
           </div>
 
@@ -1807,7 +2091,7 @@
           const nextItem = items[0];
           const message = document.createElement("div");
           message.className = "empty-message";
-          message.textContent = `まだアイテムが解放されていません。最高所持好感度が ${formatLargeNumber(nextItem.unlockAt)} になると表示されます。`;
+          message.textContent = `まだアイテムが解放されていません。最高所持ふぁぼ度が ${formatLargeNumber(nextItem.unlockAt)} になると表示されます。`;
           shopListEl.appendChild(message);
         } else {
           for (let i = 0; i < unlockedCount; i++) {
@@ -1847,12 +2131,12 @@
         elements.nameEl.textContent = item.name;
 
         if (item.type === "auto") {
-          elements.detailEl.textContent = `ランク${item.rank} / 所持数: ${formatLargeNumber(count)} / 自動好感度 +${formatLargeNumber(item.production)}/秒`;
+          elements.detailEl.textContent = `ランク${item.rank} / 所持数: ${formatLargeNumber(count)} / 自動ふぁぼ度 +${formatLargeNumber(item.production)}/秒`;
         } else {
-          elements.detailEl.textContent = `ランク${item.rank} / 所持数: ${formatLargeNumber(count)} / タップ好感度 +${formatLargeNumber(item.tapBonus)}`;
+          elements.detailEl.textContent = `ランク${item.rank} / 所持数: ${formatLargeNumber(count)} / タップふぁぼ度 +${formatLargeNumber(item.tapBonus)}`;
         }
 
-        elements.costEl.textContent = `${formatLargeNumber(cost)} 好感度`;
+        elements.costEl.textContent = `${formatLargeNumber(cost)} ふぁぼ度`;
         elements.button.disabled = state.affection < cost;
       }
 
@@ -1877,7 +2161,7 @@
         const nextItem = items[unlockedCount];
 
         const nextUnlockText = nextItem
-          ? `次: ${formatLargeNumber(nextItem.unlockAt)} 好感度`
+          ? `次: ${formatLargeNumber(nextItem.unlockAt)} ふぁぼ度`
           : "全解放済み";
 
         const shopName = activeShopType === "tap" ? "タップ強化" : "自動増加";
@@ -1896,15 +2180,15 @@
         lovePointsMiniEl.textContent = formatLargeNumber(state.lovePoints);
         lovePointsMiniEl.title = formatFullNumber(state.lovePoints);
 
-        loveCostEl.textContent = `${formatLargeNumber(loveCost)} 好感度`;
+        loveCostEl.textContent = `${formatLargeNumber(loveCost)} ふぁぼ度`;
         loveCostEl.title = formatFullNumber(loveCost);
 
         const canOffer = state.affection >= loveCost;
 
         loveOfferButton.disabled = !canOffer;
         loveOfferButton.textContent = canOffer
-          ? "好感度を捧げる（愛情 +1）"
-          : "好感度が足りません";
+          ? "ふぁぼ度を捧げる（愛情 +1）"
+          : "ふぁぼ度が足りません";
 
         loveOfferMiniButton.disabled = !canOffer;
         loveOfferMiniButton.innerHTML = canOffer ? "捧げる<br />+1" : "不足";
@@ -1957,7 +2241,7 @@
         }
 
         const cappedText = result.wasCapped ? " / 上限48時間" : "";
-        offlineNoticeEl.textContent = `留守中 ${formatDuration(result.appliedSeconds)} 分の好感度 +${formatLargeNumber(result.gain)}${cappedText}`;
+        offlineNoticeEl.textContent = `留守中 ${formatDuration(result.appliedSeconds)} 分のふぁぼ度 +${formatLargeNumber(result.gain)}${cappedText}`;
         offlineNoticeEl.style.display = "block";
 
         offlineNoticeTimer = setTimeout(() => {
