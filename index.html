@@ -1721,8 +1721,17 @@
       const ITEM_SELF_BONUS_STEP_COUNT = 10;
       const ITEM_SELF_BONUS_PERCENT_PER_STEP = 10;
 
-      const TAP_AUTO_FLOOR_NUMERATOR = 25n;
-      const TAP_AUTO_FLOOR_DENOMINATOR = 100n;
+      const AUTO_TAP_BONUS_NUMERATOR = 25n;
+      const AUTO_TAP_BONUS_DENOMINATOR = 100n;
+
+      const TAP_RESEARCH_BONUS_PERCENT_PER_LEVEL = 10;
+
+      const TAP_COLLECTION_ITEM_STEP = 10n;
+      const TAP_COLLECTION_BONUS_DENOMINATOR = 10n;
+
+      const SAVING_TAP_BONUS_NUMERATOR = 1n;
+      const SAVING_TAP_BONUS_DENOMINATOR = 1000n;
+      const SAVING_TAP_BONUS_CAP_MULTIPLIER = 10n;
 
       const OFFLINE_PROGRESS_MAX_SECONDS = 48 * 60 * 60;
       const OFFLINE_NOTICE_VISIBLE_MS = 10000;
@@ -2129,7 +2138,8 @@
           costCurve: 0.014,
           type: "savingTapBoost",
           target: "タップ増加",
-          effectText: "所持ふぁぼ度が多いほど、タップ増加に一時的な倍率がかかります。",
+          effectText:
+            "所持ふぁぼ度が多いほど、タップ増加に加算補正が入ります。補正値には上限があります。",
         },
         {
           id: "autoCollectionBoost",
@@ -2152,7 +2162,7 @@
           type: "tapCollectionBoost",
           target: "タップ増加",
           effectText:
-            "タップ強化アイテムの所持数10個ごとに、タップ増加に倍率がかかります。",
+            "タップ強化アイテムの所持数10個ごとに、タップ増加へ加算補正が入ります。",
         },
       ];
 
@@ -2771,15 +2781,6 @@
         );
       }
 
-      function getSavingTapBoostPercent() {
-        const level = getSkillLevel("savingTapBoost");
-        if (level <= 0 || state.affection <= 0n) return 0;
-
-        const digitCount = state.affection.toString().length;
-        const unitTier = Math.floor((digitCount - 1) / 4);
-        return Math.min(999999, unitTier * level * 2);
-      }
-
       function getInfiniteAutoBoostPercent() {
         return getSkillLevel(INFINITE_AUTO_SKILL.id);
       }
@@ -2794,19 +2795,56 @@
         return 100 + coreBonus + collectionBonus + infiniteBonus;
       }
 
-      function getBaseTapMultiplierPercent() {
-        const coreBonus = getSkillLevel("tapMultiplier") * 10;
-        const collectionLevel = getSkillLevel("tapCollectionBoost");
-        const collectionBonus =
-          Math.floor(Number(getTotalTapItemCountForBonus() / 10n)) * collectionLevel;
+      function getAutoTapBonus() {
+        return (
+          (getAffectionPerSecond() * AUTO_TAP_BONUS_NUMERATOR) /
+          AUTO_TAP_BONUS_DENOMINATOR
+        );
+      }
 
-        return 100 + coreBonus + collectionBonus;
+      function getTapCollectionBonus() {
+        const level = getSkillLevel("tapCollectionBoost");
+        if (level <= 0) return 0n;
+
+        return (
+          ((getTotalTapItemCountForBonus() / TAP_COLLECTION_ITEM_STEP) * BigInt(level)) /
+          TAP_COLLECTION_BONUS_DENOMINATOR
+        );
+      }
+
+      function getBaseTapMultiplierPercent() {
+        return (
+          100 + getSkillLevel("tapMultiplier") * TAP_RESEARCH_BONUS_PERCENT_PER_LEVEL
+        );
       }
 
       function getTapMultiplierPercent() {
-        const savingBonus = getSavingTapBoostPercent();
+        return getBaseTapMultiplierPercent();
+      }
 
-        return getBaseTapMultiplierPercent() + savingBonus;
+      function getTapAdditiveBaseWithoutSaving() {
+        return getBaseTapPower() + getAutoTapBonus() + getTapCollectionBonus();
+      }
+
+      function getSavingTapBoostRawBonus() {
+        const level = getSkillLevel("savingTapBoost");
+        if (level <= 0 || state.affection <= 0n) return 0n;
+
+        return (
+          (state.affection * BigInt(level) * SAVING_TAP_BONUS_NUMERATOR) /
+          SAVING_TAP_BONUS_DENOMINATOR
+        );
+      }
+
+      function getSavingTapBoostCap() {
+        return getTapAdditiveBaseWithoutSaving() * SAVING_TAP_BONUS_CAP_MULTIPLIER;
+      }
+
+      function getSavingTapBoostBonus() {
+        const rawBonus = getSavingTapBoostRawBonus();
+        const cap = getSavingTapBoostCap();
+
+        return rawBonus > cap ? cap : rawBonus;
       }
 
       function getSkillCurrentEffectText(skill) {
@@ -2821,7 +2859,14 @@
         }
 
         if (skill.type === "savingTapBoost") {
-          return `現在効果：タップ増加 +${getSavingTapBoostPercent()}%`;
+          const currentBonus = getSavingTapBoostBonus();
+          const rawBonus = getSavingTapBoostRawBonus();
+          const cap = getSavingTapBoostCap();
+
+          return (
+            `現在効果：タップ増加に +${formatLargeNumber(currentBonus)} ` +
+            `（元値 ${formatLargeNumber(rawBonus)} / 上限 ${formatLargeNumber(cap)}）`
+          );
         }
 
         if (skill.type === "autoCollectionBoost") {
@@ -2831,9 +2876,10 @@
         }
 
         if (skill.type === "tapCollectionBoost") {
-          const targetCount = getTotalTapItemCountForBonus();
-          const currentBonus = Math.floor(Number(targetCount / 10n)) * level;
-          return `現在効果：タップ強化アイテム10個ごとに倍率上昇 / 現在 +${currentBonus}%`;
+          return (
+            "現在効果：タップ強化アイテム10個ごとにタップ増加が上昇 / " +
+            `現在 +${formatLargeNumber(getTapCollectionBonus())}`
+          );
         }
 
         if (skill.type === "infiniteAutoBoost") {
@@ -2861,7 +2907,7 @@
         }
 
         if (skill.type === "savingTapBoost") {
-          return "次の強化：所持ふぁぼ度によるタップ倍率が上昇";
+          return "次の強化：所持ふぁぼ度によるタップ増加補正が上昇";
         }
 
         if (skill.type === "autoCollectionBoost") {
@@ -2869,7 +2915,7 @@
         }
 
         if (skill.type === "tapCollectionBoost") {
-          return `次の強化：タップ強化アイテム10個ごとの倍率がLv.${nextLevel}相当に上昇`;
+          return `次の強化：タップ強化アイテム10個ごとの加算値がLv.${nextLevel}相当に上昇`;
         }
 
         if (skill.type === "infiniteAutoBoost") {
@@ -2901,31 +2947,25 @@
       }
 
       function getRawTapPowerWithoutSaving() {
-        return applyPercent(getBaseTapPower(), getBaseTapMultiplierPercent());
+        return applyPercent(
+          getTapAdditiveBaseWithoutSaving(),
+          getBaseTapMultiplierPercent(),
+        );
       }
 
       function getRawTapPower() {
-        return applyPercent(getBaseTapPower(), getTapMultiplierPercent());
+        return applyPercent(
+          getTapAdditiveBaseWithoutSaving() + getSavingTapBoostBonus(),
+          getBaseTapMultiplierPercent(),
+        );
       }
 
       function getEffectiveTapPowerWithoutSaving() {
-        const rawTapPower = getRawTapPowerWithoutSaving();
-        const autoBasedFloor = ceilDiv(
-          getAffectionPerSecond() * TAP_AUTO_FLOOR_NUMERATOR,
-          TAP_AUTO_FLOOR_DENOMINATOR,
-        );
-
-        return maxBigInt(1n, maxBigInt(rawTapPower, autoBasedFloor));
+        return maxBigInt(1n, getRawTapPowerWithoutSaving());
       }
 
       function getEffectiveTapPower() {
-        const rawTapPower = getRawTapPower();
-        const autoBasedFloor = ceilDiv(
-          getAffectionPerSecond() * TAP_AUTO_FLOOR_NUMERATOR,
-          TAP_AUTO_FLOOR_DENOMINATOR,
-        );
-
-        return maxBigInt(1n, maxBigInt(rawTapPower, autoBasedFloor));
+        return maxBigInt(1n, getRawTapPower());
       }
 
       function canBulkBuy(type) {
@@ -3398,7 +3438,7 @@
 
           const rewardSeconds = missionId === "allComplete" ? 43200 : 3600;
           const crystalReward = missionId === "allComplete" ? 3 : 1;
-          detail.textContent = `報酬：現在の自動増加 ${formatDuration(rewardSeconds)} 分のふぁぼ度 + 強化素材「${SKILL_RESOURCE_NAME}」${crystalReward}個`;
+          detail.textContent = `報酬：現在の自動増加 ${formatDuration(rewardSeconds)}ぶんのふぁぼ度 + 強化素材「${SKILL_RESOURCE_NAME}」${crystalReward}個`;
 
           header.appendChild(name);
           header.appendChild(status);
@@ -3593,7 +3633,7 @@
         }
 
         const cappedText = result.wasCapped ? " / 上限48時間" : "";
-        offlineNoticeEl.textContent = `留守中 ${formatDuration(result.appliedSeconds)} 分のふぁぼ度 +${formatLargeNumber(result.gain)}${cappedText}`;
+        offlineNoticeEl.textContent = `留守中 ${formatDuration(result.appliedSeconds)}ぶんのふぁぼ度 +${formatLargeNumber(result.gain)}${cappedText}`;
         offlineNoticeEl.style.display = "block";
 
         offlineNoticeTimer = setTimeout(() => {
