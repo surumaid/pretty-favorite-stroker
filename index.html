@@ -22,6 +22,10 @@
     <link rel="icon" type="image/png" href="./favicon-32.png?v=1" sizes="32x32" />
     <link rel="icon" type="image/png" href="./favicon-192.png?v=1" sizes="192x192" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=1" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,1,0"
+    />
 
     <style>
       :root {
@@ -335,6 +339,39 @@
         font-size: 12px;
         line-height: 1.45;
         color: var(--text);
+      }
+
+      .resource-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25em;
+        min-width: 0;
+        vertical-align: middle;
+      }
+
+      .resource-icon {
+        font-family: "Material Symbols Rounded";
+        font-weight: normal;
+        font-style: normal;
+        font-size: 1em;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        font-feature-settings: "liga";
+        -webkit-font-feature-settings: "liga";
+        font-variation-settings:
+          "FILL" 1,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 20;
+        vertical-align: -0.1em;
       }
 
       .touch-area {
@@ -1400,7 +1437,12 @@
       <section class="touch-area">
         <div class="status">
           <div class="status-card">
-            <div class="status-label">所持ふぁぼ度</div>
+            <div class="status-label">
+              <span class="resource-label">
+                <span class="material-symbols-rounded resource-icon" aria-hidden="true">favorite</span>
+                <span>所持ふぁぼ度</span>
+              </span>
+            </div>
             <div id="affection" class="status-value">0</div>
           </div>
           <div class="status-card">
@@ -1442,7 +1484,12 @@
           </button>
 
           <section class="love-mini-panel" aria-label="愛情ポイント操作">
-            <div class="love-mini-label">愛情</div>
+            <div class="love-mini-label">
+              <span class="resource-label">
+                <span class="material-symbols-rounded resource-icon" aria-hidden="true">digital_wellbeing</span>
+                <span>愛情</span>
+              </span>
+            </div>
             <div id="lovePointsMini" class="love-mini-value">0</div>
             <button id="loveOfferMiniButton" class="love-mini-button" type="button">
               捧げる
@@ -1509,7 +1556,12 @@
 
       <section class="love-area">
         <div class="love-header">
-          <div class="love-title">愛情ポイント</div>
+          <div class="love-title">
+            <span class="resource-label">
+              <span class="material-symbols-rounded resource-icon" aria-hidden="true">digital_wellbeing</span>
+              <span>愛情ポイント</span>
+            </span>
+          </div>
           <div id="lovePoints" class="love-points">0</div>
         </div>
 
@@ -1553,7 +1605,12 @@
             </div>
 
             <div class="achievement-card">
-              <div class="achievement-label">愛の結晶</div>
+              <div class="achievement-label">
+                <span class="resource-label">
+                  <span class="material-symbols-rounded resource-icon" aria-hidden="true">award_star</span>
+                  <span>愛の結晶</span>
+                </span>
+              </div>
               <div id="loveCrystalCount" class="achievement-value">0</div>
             </div>
           </div>
@@ -1819,6 +1876,12 @@
         "不可思議",
         "無量大数",
       ];
+
+      const RESOURCE_ICON_NAMES = {
+        affection: "favorite",
+        loveCrystal: "award_star",
+        lovePoint: "digital_wellbeing",
+      };
 
       const THEMES = [
         {
@@ -2581,6 +2644,14 @@
         return `×${fixed}`;
       }
 
+      function getResourceIconHtml(type) {
+        return `<span class="material-symbols-rounded resource-icon" aria-hidden="true">${RESOURCE_ICON_NAMES[type]}</span>`;
+      }
+
+      function getResourceLabelHtml(type, label) {
+        return `<span class="resource-label">${getResourceIconHtml(type)}<span>${label}</span></span>`;
+      }
+
       function getAdaptiveStatusSubFontSize(text) {
         const length = Array.from(String(text || "")).length;
 
@@ -2873,13 +2944,16 @@
         }
 
         if (skill.type === "savingTapBoost") {
+          const baseTapPower = getEffectiveTapPowerWithoutSaving();
+          const savingTapPower = getEffectiveTapPower();
           const currentBonus = getSavingTapBoostBonus();
-          const rawBonus = getSavingTapBoostRawBonus();
           const cap = getSavingTapBoostCap();
 
           return (
-            `現在効果：タップ増加に +${formatLargeNumber(currentBonus)} ` +
-            `（元値 ${formatLargeNumber(rawBonus)} / 上限 ${formatLargeNumber(cap)}）`
+            `現在効果：愛の貯蓄なし ${formatLargeNumber(baseTapPower)} ` +
+            `/ 愛の貯蓄込 ${formatLargeNumber(savingTapPower)}<br>` +
+            `補正値 +${formatLargeNumber(currentBonus)} ` +
+            `（上限 ${formatLargeNumber(cap)}）`
           );
         }
 
@@ -3245,8 +3319,8 @@
         const detail = document.createElement("div");
         detail.className = "daily-popup-detail";
         detail.innerHTML =
-          `報酬：ふぁぼ度 +${formatLargeNumber(affectionReward)}<br>` +
-          `強化素材：${SKILL_RESOURCE_NAME} +${formatLargeNumber(crystalReward)}個`;
+          `報酬：${getResourceLabelHtml("affection", "ふぁぼ度")} +${formatLargeNumber(affectionReward)}<br>` +
+          `強化素材：${getResourceLabelHtml("loveCrystal", SKILL_RESOURCE_NAME)} +${formatLargeNumber(crystalReward)}個`;
 
         popup.appendChild(title);
         popup.appendChild(detail);
@@ -3365,7 +3439,8 @@
             `現在 +${formatLargeNumber(currentEffect)} / 次回 +${formatLargeNumber(nextGain)}`;
         }
 
-        elements.costEl.textContent = `${formatLargeNumber(cost)} ふぁぼ度`;
+        elements.costEl.innerHTML =
+          `${getResourceLabelHtml("affection", "ふぁぼ度")} ${formatLargeNumber(cost)}`;
         elements.button.disabled = state.affection < cost;
       }
 
@@ -3423,7 +3498,7 @@
 
         dailyInfoEl.innerHTML =
           `${state.daily.dateKey}<br>` +
-          `${SKILL_RESOURCE_NAME}: ${formatLargeNumber(state.loveCrystals)}個`;
+          `${getResourceLabelHtml("loveCrystal", SKILL_RESOURCE_NAME)}: ${formatLargeNumber(state.loveCrystals)}個`;
 
         dailyMissionListEl.innerHTML = "";
 
@@ -3457,8 +3532,9 @@
 
           const rewardSeconds = missionId === "allComplete" ? 43200 : 3600;
           const crystalReward = missionId === "allComplete" ? 3 : 1;
-          detail.textContent =
-            `報酬：現在の自動増加 ${formatDuration(rewardSeconds)}ぶんのふぁぼ度 + 強化素材「${SKILL_RESOURCE_NAME}」${crystalReward}個`;
+          detail.innerHTML =
+            `報酬：現在の自動増加 ${formatDuration(rewardSeconds)}ぶんの${getResourceLabelHtml("affection", "ふぁぼ度")} + ` +
+            `強化素材「${getResourceLabelHtml("loveCrystal", SKILL_RESOURCE_NAME)}」${crystalReward}個`;
 
           header.appendChild(name);
           header.appendChild(status);
@@ -3525,10 +3601,11 @@
         } else if (isMax) {
           button.textContent = "最大強化済み";
         } else if (canBuy) {
-          button.textContent = `${SKILL_RESOURCE_NAME} ${formatLargeNumber(cost)}個で強化`;
+          button.innerHTML =
+            `${getResourceLabelHtml("loveCrystal", SKILL_RESOURCE_NAME)} ${formatLargeNumber(cost)}個で強化`;
         } else {
-          button.textContent =
-            `${SKILL_RESOURCE_NAME}不足：必要 ${formatLargeNumber(cost)}個`;
+          button.innerHTML =
+            `${getResourceLabelHtml("loveCrystal", SKILL_RESOURCE_NAME)}不足：必要 ${formatLargeNumber(cost)}個`;
         }
 
         button.addEventListener("click", () => {
@@ -3551,7 +3628,7 @@
         const infiniteUnlocked = isInfiniteAutoSkillUnlocked();
 
         skillInfoEl.innerHTML =
-          `${SKILL_RESOURCE_NAME}: ${formatLargeNumber(state.loveCrystals)}個<br>` +
+          `${getResourceLabelHtml("loveCrystal", SKILL_RESOURCE_NAME)}: ${formatLargeNumber(state.loveCrystals)}個<br>` +
           `自動 ${formatMultiplierFromPercent(autoPercent)} / タップ ${formatMultiplierFromPercent(tapPercent)}`;
 
         skillListEl.innerHTML = "";
@@ -3574,15 +3651,20 @@
         lovePointsMiniEl.textContent = formatLargeNumber(state.lovePoints);
         lovePointsMiniEl.title = formatFullNumber(state.lovePoints);
 
-        loveCostEl.textContent = `${formatLargeNumber(loveCost)} ふぁぼ度`;
+        loveCostEl.innerHTML =
+          `${formatLargeNumber(loveCost)} ${getResourceLabelHtml("affection", "ふぁぼ度")}`;
         loveCostEl.title = formatFullNumber(loveCost);
 
         const canOffer = state.affection >= loveCost;
 
         loveOfferButton.disabled = !canOffer;
-        loveOfferButton.textContent = canOffer
-          ? `ふぁぼ度を捧げる（愛情 +1 / ${SKILL_RESOURCE_NAME} +1）`
-          : "ふぁぼ度が足りません";
+
+        if (canOffer) {
+          loveOfferButton.innerHTML =
+            `${getResourceLabelHtml("affection", "ふぁぼ度")}を捧げる（${getResourceLabelHtml("lovePoint", "愛情")} +1 / ${getResourceLabelHtml("loveCrystal", SKILL_RESOURCE_NAME)} +1）`;
+        } else {
+          loveOfferButton.innerHTML = `${getResourceLabelHtml("affection", "ふぁぼ度")}が足りません`;
+        }
 
         loveOfferMiniButton.disabled = !canOffer;
         loveOfferMiniButton.innerHTML = canOffer ? "捧げる<br />+1" : "不足";
@@ -3656,7 +3738,8 @@
         }
 
         const cappedText = result.wasCapped ? " / 上限48時間" : "";
-        offlineNoticeEl.textContent = `留守中 ${formatDuration(result.appliedSeconds)}ぶんのふぁぼ度 +${formatLargeNumber(result.gain)}${cappedText}`;
+        offlineNoticeEl.innerHTML =
+          `留守中 ${formatDuration(result.appliedSeconds)}ぶんの${getResourceLabelHtml("affection", "ふぁぼ度")} +${formatLargeNumber(result.gain)}${cappedText}`;
         offlineNoticeEl.style.display = "block";
 
         offlineNoticeTimer = setTimeout(() => {
