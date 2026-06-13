@@ -173,28 +173,28 @@
       }
 
       .decor-line-xl {
-        stroke-width: 8.5;
-        opacity: 0.2;
+        stroke-width: 100;
+        opacity: 0.07;
       }
 
       .decor-line-lg {
-        stroke-width: 6.5;
-        opacity: 0.28;
+        stroke-width: 36;
+        opacity: 0.12;
       }
 
       .decor-line-md {
-        stroke-width: 4.25;
-        opacity: 0.34;
+        stroke-width: 8;
+        opacity: 0.24;
       }
 
       .decor-line-sm {
-        stroke-width: 2.35;
-        opacity: 0.28;
+        stroke-width: 1.25;
+        opacity: 0.3;
       }
 
       .decor-line-xs {
-        stroke-width: 1.2;
-        opacity: 0.22;
+        stroke-width: 0.45;
+        opacity: 0.24;
       }
 
       .decor-fill {
@@ -211,23 +211,23 @@
       }
 
       .decor-stroke-xl {
-        stroke-width: 7;
-        opacity: 0.18;
+        stroke-width: 100;
+        opacity: 0.07;
       }
 
       .decor-stroke-lg {
+        stroke-width: 30;
+        opacity: 0.12;
+      }
+
+      .decor-stroke-md {
         stroke-width: 5;
         opacity: 0.2;
       }
 
-      .decor-stroke-md {
-        stroke-width: 3.25;
-        opacity: 0.22;
-      }
-
       .decor-stroke-sm {
-        stroke-width: 1.75;
-        opacity: 0.18;
+        stroke-width: 0.65;
+        opacity: 0.2;
       }
 
       .decor-sway-a,
@@ -1211,7 +1211,6 @@
               class="decor-stroke-sm decor-sway-f"
               d="M1010 162 l24 -24 l24 24 l-24 24 z"
             />
-
             <path
               class="decor-line-sm decor-sway-d"
               d="M1220 150 C1340 60 1420 220 1540 130 S1760 50 1880 130 S2100 220 2220 120 S2360 70 2400 105"
@@ -1263,7 +1262,6 @@
               class="decor-stroke-md decor-sway-d"
               d="M1080 58 C1110 30 1150 30 1180 58"
             />
-
             <path
               class="decor-line-xs decor-sway-f"
               d="M1210 108 C1330 188 1450 38 1590 116 S1860 206 2010 98 S2260 44 2400 132"
@@ -1315,7 +1313,6 @@
               class="decor-stroke-sm decor-sway-d"
               d="M980 70 l18 -30 l18 30 l-18 30 z"
             />
-
             <path
               class="decor-line-xs decor-sway-b"
               d="M1200 140 C1330 98 1410 170 1530 128 S1720 46 1850 92 S2060 188 2210 126 S2340 88 2400 112"
@@ -1437,7 +1434,6 @@
 
         <div class="accordion-content">
           <div id="dailyMissionList" class="daily-list"></div>
-
           <div class="daily-detail">
             毎日0時に更新されます。達成した報酬は自動で受け取ります。
           </div>
@@ -1452,7 +1448,6 @@
 
         <div class="accordion-content">
           <div id="skillList" class="skill-list"></div>
-
           <div class="skill-detail">
             愛の結晶を消費して、ふぁぼ度の増加量に倍率をかけます。
             全ての基本スキルがLv.999になると、自動増加を少しずつ伸ばせる無限強化が解放されます。
@@ -1469,8 +1464,8 @@
         <div class="love-detail">
           一定量のふぁぼ度を捧げると、愛情ポイントが1増えます。<br />
           愛情ポイントはショップ・タップ・自動増加には影響しません。<br />
-          あなたのたゆまぬ愛情を視覚化できます。<br />
           愛情ポイントが増えるたび、強化素材「愛の結晶」も1個増えます。<br />
+          あなたのたゆまぬ愛情を視覚化できます。<br />
           次に必要なふぁぼ度：<span id="loveCost" class="love-cost">1無量大数</span>
         </div>
 
@@ -2510,7 +2505,6 @@
           image.onload = () => {
             const width = image.naturalWidth;
             const height = image.naturalHeight;
-
             const scale = Math.min(1, CHARACTER_IMAGE_MAX_SIZE / Math.max(width, height));
 
             const canvas = document.createElement("canvas");
@@ -2847,7 +2841,6 @@
         }
 
         processDailyMissions();
-
         updateAll();
         saveLocal();
       }
