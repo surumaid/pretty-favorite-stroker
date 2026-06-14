@@ -345,23 +345,27 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.02em;
+        gap: 0.06em;
         margin-left: 0.08em;
         min-width: 0;
-        vertical-align: middle;
+        line-height: 1;
+        vertical-align: -0.06em;
       }
 
       .resource-icon {
         font-family: "Material Symbols Rounded";
         font-weight: normal;
         font-style: normal;
-        font-size: 1em;
+        font-size: 1.05em;
+        width: 1em;
+        height: 1em;
         line-height: 1;
         letter-spacing: normal;
         text-transform: none;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        flex: 0 0 auto;
         white-space: nowrap;
         word-wrap: normal;
         direction: ltr;
@@ -372,7 +376,7 @@
           "wght" 400,
           "GRAD" 0,
           "opsz" 20;
-        vertical-align: -0.1em;
+        transform: translateY(0.02em);
       }
 
       .touch-area {
@@ -4871,6 +4875,5 @@
       showOfflineNotice(offlineResult);
       saveLocal();
     </script>
-    
   </body>
 </html>
