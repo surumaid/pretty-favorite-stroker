@@ -2918,6 +2918,7 @@
       let renderedShopType = "";
       let renderedUnlockedCount = -1;
       let saveTimer = null;
+      let cloudUser = null;
 
       const itemElements = new Map();
 
@@ -3108,20 +3109,107 @@
         }, 220);
       }
 
-      function updateCloudSyncMenu() {
-        cloudAccountStatusEl.textContent = "未ログイン";
-        cloudSyncStatusEl.textContent =
-          "Firebase設定後に、Googleログイン・クラウド保存・別端末更新チェックを有効化します。";
+      function getCloudUserDisplayName(user) {
+        if (!user) return "未ログイン";
 
-        cloudLoginButton.disabled = false;
-        cloudLogoutButton.disabled = true;
+        return user.email || user.displayName || user.uid || "ログイン済み";
+      }
+
+      function updateCloudSyncMenu() {
+        if (!cloudUser) {
+          cloudAccountStatusEl.textContent = "未ログイン";
+          cloudSyncStatusEl.textContent =
+            "Googleログインできます。クラウド保存・読み込みは次の段階で実装します。";
+
+          cloudLoginButton.disabled = false;
+          cloudLogoutButton.disabled = true;
+          cloudLoadButton.disabled = true;
+          cloudSaveButton.disabled = true;
+          return;
+        }
+
+        cloudAccountStatusEl.textContent = getCloudUserDisplayName(cloudUser);
+        cloudSyncStatusEl.textContent =
+          "ログイン済みです。クラウド保存・読み込みは次の段階で実装します。";
+
+        cloudLoginButton.disabled = true;
+        cloudLogoutButton.disabled = false;
         cloudLoadButton.disabled = true;
         cloudSaveButton.disabled = true;
       }
 
-      function showCloudSyncNotReady() {
+      function getFirebaseAuthErrorMessage(error) {
+        const code = error && error.code ? String(error.code) : "";
+
+        if (code === "auth/popup-closed-by-user") {
+          return "Googleログインがキャンセルされました。";
+        }
+
+        if (code === "auth/popup-blocked") {
+          return "ポップアップがブロックされました。ブラウザのポップアップ許可設定を確認してください。";
+        }
+
+        if (code === "auth/unauthorized-domain") {
+          return (
+            "このドメインはFirebase Authenticationで許可されていません。\n\n" +
+            "Firebase Consoleの Authentication > Settings > Authorized domains に、現在のドメインを追加してください。"
+          );
+        }
+
+        if (code === "auth/operation-not-allowed") {
+          return (
+            "GoogleログインがFirebase側で有効になっていません。\n\n" +
+            "Firebase Consoleの Authentication > Sign-in method で Google を有効化してください。"
+          );
+        }
+
+        if (code === "auth/network-request-failed") {
+          return "ネットワーク接続に失敗しました。通信状態を確認してください。";
+        }
+
+        return "Googleログインに失敗しました。Firebase Consoleの設定とブラウザのコンソールを確認してください。";
+      }
+
+      async function signInCloud() {
+        if (window.location.protocol === "file:") {
+          alert(
+            "Googleログインは file:// で直接開いたHTMLでは動作しません。\n\n" +
+              "VS CodeのLive Serverなどで http://localhost:xxxx として開くか、Webサーバーにアップロードして確認してください。",
+          );
+          return;
+        }
+
+        cloudLoginButton.disabled = true;
+        cloudSyncStatusEl.textContent = "Googleログインを開始しています…";
+
+        try {
+          await signInWithPopup(auth, googleProvider);
+        } catch (error) {
+          console.error("Googleログインに失敗しました。", error);
+          cloudLoginButton.disabled = false;
+          cloudSyncStatusEl.textContent = "Googleログインに失敗しました。";
+          alert(getFirebaseAuthErrorMessage(error));
+        }
+      }
+
+      async function signOutCloud() {
+        cloudLogoutButton.disabled = true;
+        cloudSyncStatusEl.textContent = "ログアウトしています…";
+
+        try {
+          await signOut(auth);
+        } catch (error) {
+          console.error("ログアウトに失敗しました。", error);
+          cloudLogoutButton.disabled = false;
+          cloudSyncStatusEl.textContent = "ログアウトに失敗しました。";
+          alert("ログアウトに失敗しました。ブラウザのコンソールを確認してください。");
+        }
+      }
+
+      function showCloudFeatureNotReady(featureName) {
         alert(
-          "Firebase設定を追加すると有効になります。\n\n次の段階で、Firebase Authentication と Firestore の接続処理をこのメニューに実装します。",
+          `${featureName}は次の段階で実装します。\n\n` +
+            "現在はGoogleログイン・ログアウトのみ有効です。",
         );
       }
 
@@ -5003,19 +5091,24 @@
       });
 
       cloudLoginButton.addEventListener("click", () => {
-        showCloudSyncNotReady();
+        signInCloud();
       });
 
       cloudLogoutButton.addEventListener("click", () => {
-        showCloudSyncNotReady();
+        signOutCloud();
       });
 
       cloudLoadButton.addEventListener("click", () => {
-        showCloudSyncNotReady();
+        showCloudFeatureNotReady("クラウド読み込み");
       });
 
       cloudSaveButton.addEventListener("click", () => {
-        showCloudSyncNotReady();
+        showCloudFeatureNotReady("クラウド保存");
+      });
+
+      onAuthStateChanged(auth, (user) => {
+        cloudUser = user;
+        updateCloudSyncMenu();
       });
 
       themeSelect.addEventListener("change", () => {
